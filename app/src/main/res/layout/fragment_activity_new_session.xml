@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".NewSessionActivity">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <TextView
+            android:layout_marginRight="90dp"
+            android:id="@+id/operationNameText"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Op name"
+            android:textSize="25dp"/>
+
+        <TextView
+            android:textSize="25dp"
+            android:text="Current : "
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="300dp">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_margin="20dp"
+                    android:orientation="vertical"
+                    android:id="@+id/productionTaskLayout"
+                    android:layout_width="200dp"
+                    android:layout_height="match_parent">
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:id="@+id/counterPlusLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_marginLeft="20dp"
+                        android:orientation="vertical"
+                        android:id="@+id/counterTextLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:id="@+id/counterMinusLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+        </ScrollView>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <android.support.v7.widget.CardView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="@android:dimen/app_icon_size"
+            android:elevation="400dp"
+            android:outlineSpotShadowColor="#000000">
+
+            <LinearLayout
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:padding="30dp"
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#FFDF97">
+
+                <Button
+                    android:gravity="center"
+                    android:padding="20dp"
+                    android:layout_gravity="center"
+                    android:background="#6FDA10"
+                    android:id="@+id/sessionStart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="START SESSION"/>
+
+                <Chronometer
+                    android:gravity="center"
+                    android:id="@+id/sessionChronometer"
+                    android:textSize="40dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:layout_marginLeft="20dp"
+            android:layout_gravity="left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="@android:dimen/app_icon_size"
+            android:elevation="400dp"
+            android:outlineSpotShadowColor="#000000">
+
+            <LinearLayout
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:padding="30dp"
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#FFDF97">
+
+                <Button
+                    android:gravity="center"
+                    android:padding="20dp"
+                    android:layout_gravity="center"
+                    android:background="#6FDA10"
+                    android:id="@+id/delayStartBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="START DELAY"/>
+
+                <Chronometer
+                    android:gravity="center"
+                    android:id="@+id/delayChronometer"
+                    android:textSize="40dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
+    </LinearLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </GridLayout>
+
+    </ScrollView>
+
+</LinearLayout>
