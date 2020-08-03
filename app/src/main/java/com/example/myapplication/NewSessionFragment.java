@@ -37,6 +37,10 @@ public class NewSessionFragment extends Fragment {
             operationArray=getArguments().getStringArray("operations");
         }
 
+        if(operationArray==null){
+            Toast.makeText(getContext(), "Server is not active", Toast.LENGTH_LONG).show();
+        }
+
         //set views
         operationList=view.findViewById(R.id.operationList);
         refreshButton=view.findViewById(R.id.refreshBtn);
@@ -81,7 +85,7 @@ public class NewSessionFragment extends Fragment {
             Button b = (Button)v;
             String buttonText = b.getText().toString();
             //create intent to open session sheet activity
-            Intent intent = new Intent(getContext(), NewSessionActivity.class);
+            Intent intent = new Intent(getContext(), MentorMenteeActivity.class);
             //pass the information about the operation selected
             intent.putExtra("Operation Name", buttonText);
             //open the session sheet activity

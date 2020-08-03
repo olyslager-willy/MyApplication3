@@ -10,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -25,8 +26,21 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.sql.Blob;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,18 +49,21 @@ import java.util.List;
 public class SummaryActivity extends AppCompatActivity {
 
     LinearLayout performanceCalcLayout, linearLayout, canvasLL;
-    TextView performanceCalcTextview, delayNotesText;
+    TextView performanceCalcTextview, delayNotesText, pumpText;
     signature mSignature;
 
-    float earnedTime, performance, totalTime, delayTime;
+    float earnedTime, performance, totalTime, delayTime, pumpScore;
     String [] prodTaskCount, gridDisplayText, sliderValues, preferredMethods, buckets;
     String goodMethods="";
     String badMethods="";
-    String delayNotes;
+    String delayNotes, operation, uoms;
+    String associateName, mentorName, associateID, date;
+    String paceText, utilizationText, methodsText;
     float[] earnedTimeContribution;
     GridView gridView, gridView2;
-    Button signButton, btnClear;
+    Button signButton, btnClear, submitSession;
     View view;
+    String response;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +71,14 @@ public class SummaryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_summary2);
 
         //set views
+        submitSession = findViewById(R.id.submitSession);
         linearLayout = findViewById(R.id.linearLayout);
         performanceCalcLayout = findViewById(R.id.performanceCalcLayout);
         performanceCalcTextview= findViewById(R.id.performanceCalcTextview);
         gridView = findViewById(R.id.gridView);
         gridView2=findViewById(R.id.gridView2);
         delayNotesText=findViewById(R.id.delayNotesText);
+        pumpText=findViewById(R.id.pumpCalcTextview);
 
         //set views and methods for signature
         canvasLL = (LinearLayout) findViewById(R.id.canvasLL);
@@ -72,6 +91,7 @@ public class SummaryActivity extends AppCompatActivity {
 
         view = canvasLL;
 
+        //click listener for clear signature (clears signature space)
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -81,20 +101,33 @@ public class SummaryActivity extends AppCompatActivity {
 
 
         //receive intent from NewSessionActivity
+        operation = getIntent().getStringExtra("operation name");
         earnedTime= getIntent().getFloatExtra("earned time",0);
-        performance= getIntent().getFloatExtra("performance",0);
         totalTime= getIntent().getFloatExtra("total time",0);
+        performance= getIntent().getFloatExtra("performance",0);
         delayTime= getIntent().getFloatExtra("delay time",0);
         prodTaskCount=getIntent().getStringArrayExtra("count");
         earnedTimeContribution=getIntent().getFloatArrayExtra("contribution");
         sliderValues = getIntent().getStringArrayExtra("slider");
         preferredMethods =getIntent().getStringArrayExtra("preferred methods");
         delayNotes =getIntent().getStringExtra("notes");
+        paceText=getIntent().getStringExtra("pace");
+        utilizationText=getIntent().getStringExtra("utilization");
+        methodsText=getIntent().getStringExtra("methods");
+        associateID = getIntent().getStringExtra("Associate ID");
+        associateName = getIntent().getStringExtra("Associate Name");
+        Log.i("Before the async:", associateName);
+        mentorName = getIntent().getStringExtra("Mentor Name");
+        date = getIntent().getStringExtra("Date");
 
         DecimalFormat df = new DecimalFormat("##.##");
+        DecimalFormat df2 = new DecimalFormat("##.#");
 
         //set text for the performance formula
         performanceCalcTextview.setText(df.format(earnedTime/60)+" min"+" /("+df.format(totalTime/60)+" min -"+df.format(delayTime/60)+" min) ="+df.format(performance)+"%");
+        //calculate pump and fill in the text
+        pumpScore = (Float.parseFloat(paceText)/100)*(Float.parseFloat(utilizationText)/100)*(Float.parseFloat(methodsText)/100);
+        pumpText.setText(paceText+"    X    "+utilizationText+"    X    "+methodsText+"    =    "+df2.format(pumpScore*100)+"%");
         //set text for the delay notes
         delayNotesText.setText(delayNotes);
         Log.i("from summary:", delayNotes);
@@ -105,12 +138,13 @@ public class SummaryActivity extends AppCompatActivity {
 
         //create a new array with the prod task count, the prod task, and the contribution to the overall earned time
         gridDisplayText = new String[prodTaskCount.length-1];
+        uoms = "";
         for(int i =0;i<prodTasks2.length;i++){
             gridDisplayText[i]=String.valueOf(prodTaskCount[i])+" "+prodTasks2[i]+"(s):"+" "+String.valueOf(df.format(earnedTimeContribution[i]))+" minutes";
+            //creating uoms string so that we can store it in DB
+            uoms = uoms+String.valueOf(prodTaskCount[i])+" "+prodTasks2[i]+"(s):"+" "+String.valueOf(df.format(earnedTimeContribution[i]))+" minutes"+"/";
             Log.i("gridText: ", gridDisplayText[i]);
         }
-
-
 
 
         // Populate a List from Array elements
@@ -180,9 +214,9 @@ public class SummaryActivity extends AppCompatActivity {
         //for the second gridView first determine which methods were done well and which weren't
         for(int i =0; i<preferredMethods.length-1;i++){
             if(Integer.parseInt(sliderValues[i])<3){
-                badMethods = "-"+badMethods+preferredMethods[i]+" ";
+                badMethods = "-"+badMethods+preferredMethods[i]+"/";
             }else{
-                goodMethods = "-"+goodMethods+preferredMethods[i]+" ";
+                goodMethods = "-"+goodMethods+preferredMethods[i]+"/sou";
             }
         }
         //now we have to change the strings into an array so that we can pass them to the gridView with the arrayAdapter
@@ -250,6 +284,15 @@ public class SummaryActivity extends AppCompatActivity {
 
                 // Return the TextView widget as GridView item
                 return tv;
+            }
+        });
+
+        //clicklistener for submit session
+        submitSession.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BackgroundTask backgroundTask = new BackgroundTask();
+                backgroundTask.execute(associateName, mentorName, date, operation, Float.toString(earnedTime), Float.toString(totalTime), Float.toString(delayTime), Float.toString(performance),uoms, goodMethods, badMethods, associateID, paceText,methodsText, utilizationText, Float.toString(pumpScore));
             }
         });
 
@@ -366,6 +409,128 @@ public class SummaryActivity extends AppCompatActivity {
             dirtyRect.right = Math.max(lastTouchX, eventX);
             dirtyRect.top = Math.min(lastTouchY, eventY);
             dirtyRect.bottom = Math.max(lastTouchY, eventY);
+        }
+    }
+
+    //implement AsyncTask to run database operations---------------------------------------------------------------------------------------------------
+    class BackgroundTask extends AsyncTask<String, Void, String> {
+
+        //implement methods for AsyncTask
+
+        String add_info_url;
+
+        @Override
+        protected void onPreExecute() {
+            //specify the domain name and php script
+            //still need to make php file
+            add_info_url ="http://192.168.1.67:80/add_info_session.php";
+        }
+
+        @Override
+        protected String doInBackground(String... args) {
+            String associateName, mentorName, date, operation, earnedTime, totalTime, delayTime, performance, uoms, goodMethods,badMethods, associateID, pace, methods, utilization,pumpScore;
+            //Blob signature;
+            associateName=args[0];
+            mentorName = args[1];
+            date = args[2];
+            operation = args[3];
+            earnedTime = args[4];
+            totalTime= args[5];
+            delayTime = args[6];
+            performance = args[7];
+            uoms = args[8];
+            goodMethods = args[9];
+            badMethods = args[10];
+            associateID = args[11];
+            pace = args[12];
+            methods = args[13];
+            utilization = args[14];
+            pumpScore=args[15];
+
+            //make sure information is making it here
+            Log.i("associateName", associateName);
+            Log.i("date", date);
+            Log.i("operation", operation);
+            Log.i("earnedTime", earnedTime);
+            Log.i("totalTime", totalTime);
+            Log.i("delayTime", delayTime);
+            Log.i("performance", performance);
+            Log.i("uoms", uoms);
+            Log.i("goodMethods", goodMethods);
+            Log.i("badMethods", badMethods);
+            Log.i("associateID", associateID);
+            Log.i("pace", pace);
+            Log.i("methods", methods);
+            Log.i("utilization", utilization);
+            Log.i("pumpScore", pumpScore);
+
+
+            try {
+                URL url = new URL(add_info_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                //set parameters for url connection
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+
+                //create output stream object
+                //to write to server
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+
+                String data_string = URLEncoder.encode("associateName","UTF-8")+"="+URLEncoder.encode(associateName,"UTF-8")+"&"+
+                        URLEncoder.encode("mentorName","UTF-8")+"="+URLEncoder.encode(mentorName,"UTF-8")+"&"+
+                        URLEncoder.encode("date","UTF-8")+"="+URLEncoder.encode(date,"UTF-8")+"&"+
+                        URLEncoder.encode("operation","UTF-8")+"="+URLEncoder.encode(operation,"UTF-8")+"&"+
+                        URLEncoder.encode("earnedTime","UTF-8")+"="+URLEncoder.encode(earnedTime,"UTF-8")+"&"+
+                        URLEncoder.encode("totalTime","UTF-8")+"="+URLEncoder.encode(totalTime,"UTF-8")+"&"+
+                        URLEncoder.encode("delayTime","UTF-8")+"="+URLEncoder.encode(delayTime,"UTF-8")+"&"+
+                        URLEncoder.encode("performance","UTF-8")+"="+URLEncoder.encode(performance,"UTF-8")+"&"+
+                        URLEncoder.encode("uoms","UTF-8")+"="+URLEncoder.encode(uoms,"UTF-8")+"&"+
+                        URLEncoder.encode("goodMethods","UTF-8")+"="+URLEncoder.encode(goodMethods,"UTF-8")+"&"+
+                        URLEncoder.encode("badMethods","UTF-8")+"="+URLEncoder.encode(badMethods,"UTF-8")+"&"+
+                        URLEncoder.encode("associateID","UTF-8")+"="+URLEncoder.encode(associateID,"UTF-8")+"&"+
+                        URLEncoder.encode("pace","UTF-8")+"="+URLEncoder.encode(pace,"UTF-8")+"&"+
+                        URLEncoder.encode("methods","UTF-8")+"="+URLEncoder.encode(methods,"UTF-8")+"&"+
+                        URLEncoder.encode("utilization","UTF-8")+"="+URLEncoder.encode(utilization,"UTF-8")+"&"+
+                        URLEncoder.encode("pumpScore","UTF-8")+"="+URLEncoder.encode(pumpScore,"UTF-8");
+                bufferedWriter.write(data_string);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+
+                //create input stream object to receive server response
+                InputStream inputStream =httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,"iso-8859-1"));
+                response="";
+                String line="";
+                while((line=bufferedReader.readLine())!=null){
+                    response+=line;
+                }
+
+                Log.i("Server response:", response);
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return "Session Added";
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(SummaryActivity.this, result, Toast.LENGTH_LONG).show();
+
         }
     }
 }

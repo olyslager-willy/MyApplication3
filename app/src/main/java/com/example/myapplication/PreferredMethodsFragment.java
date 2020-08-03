@@ -38,14 +38,14 @@ public class PreferredMethodsFragment extends Fragment {
     String []prefMethodsArray;
     String[] sliderValues;
     Button endButton;
-    EditText delayNotes;
+    EditText delayNotes, paceText, utilizationText, methodsText;
     View v;
 
     //create instance of interface
     SummaryPageTrigger summaryPageTrigger;
 
     public interface SummaryPageTrigger{
-        public void onSummaryPageTriggered(String[]sliderValues, String delayNotes);
+        public void onSummaryPageTriggered(String[]sliderValues, String delayNotes, String pace, String utilization, String methods);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -65,6 +65,9 @@ public class PreferredMethodsFragment extends Fragment {
         textLayout=v.findViewById(R.id.textLayout);
         endButton=v.findViewById(R.id.endButton);
         delayNotes =v.findViewById(R.id.delayNotes);
+        paceText=v.findViewById(R.id.paceText);
+        utilizationText=v.findViewById(R.id.utilizationText);
+        methodsText=v.findViewById(R.id.utilizationText);
         //set onclick listener for endButton...
         //it should call the interface which will trigger the activity to fetch the necessary data
         //and change to the summary page activity
@@ -87,8 +90,11 @@ public class PreferredMethodsFragment extends Fragment {
                 sliderValues[i]=textView1.getText().toString();
             }
            String delayNotesString= delayNotes.getText().toString();
+            String pace = paceText.getText().toString();
+            String util= utilizationText.getText().toString();
+            String methods = methodsText.getText().toString();
             Log.i("from pref meth:", delayNotesString);
-            summaryPageTrigger.onSummaryPageTriggered(sliderValues,delayNotesString);
+            summaryPageTrigger.onSummaryPageTriggered(sliderValues,delayNotesString, pace, util, methods);
         }
     };
 

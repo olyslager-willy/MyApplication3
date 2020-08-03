@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 public class ConfigurationFragment extends Fragment {
 
@@ -28,7 +29,7 @@ public class ConfigurationFragment extends Fragment {
         editOperationLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Toast.makeText(getContext(), "This feature is not available at this time", Toast.LENGTH_SHORT).show();
             }
         });
 

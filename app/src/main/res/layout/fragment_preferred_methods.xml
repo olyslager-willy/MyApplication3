@@ -47,6 +47,39 @@
 
     <TextView
         android:textSize="30dp"
+        android:text="PUMP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/paceText"
+            android:layout_marginRight="20dp"
+            android:hint="Enter Pace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <EditText
+            android:id="@+id/utilizationText"
+            android:layout_marginRight="20dp"
+            android:hint="Enter Utilization"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <EditText
+            android:id="@+id/methodsText"
+            android:hint="Enter Methods"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+
+
+    </LinearLayout>
+
+    <TextView
+        android:textSize="30dp"
         android:text="NOTES"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

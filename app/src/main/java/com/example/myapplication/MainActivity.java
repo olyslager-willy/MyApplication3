@@ -7,6 +7,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,13 +21,20 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements NewSessionFragment.RefreshMethod{
 
 
-
     String response;
+    String status;
     String[] operationArray;
+    String [] associatesArray;
+    String[] fullResponseArray;
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+    ArrayList<ExampleItem> exampleList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +53,8 @@ public class MainActivity extends AppCompatActivity implements NewSessionFragmen
         ReadInfoFromDatabase readInfoFromDatabase = new ReadInfoFromDatabase();
         readInfoFromDatabase.execute();
 
-    }
 
+    }
 
     private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -57,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements NewSessionFragmen
                     switch(menuItem.getItemId()){
                         case R.id.nav_home:
                             selectedFragment = new HomeFragment();
+                            Bundle args3=new Bundle();
+                            args3.putString("status", status);
                             break;
                         case R.id.nav_new:
                             selectedFragment = new NewSessionFragment();
@@ -66,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements NewSessionFragmen
                             break;
                         case R.id.nav_reporting:
                             selectedFragment = new ReportingFragment();
+                            Bundle args2 = new Bundle();
+                            args2.putStringArray("associates", associatesArray);
+                            selectedFragment.setArguments(args2);
                             break;
                         case R.id.nav_configuration:
                             selectedFragment = new ConfigurationFragment();
@@ -96,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements NewSessionFragmen
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, newSessionFragment).commit();
 
     }
+
 
     //Implement Asynctask to run database operations--------------------------------------------------------------------------------------------
     public  class ReadInfoFromDatabase extends AsyncTask<Void,Void,Void> {
@@ -157,13 +171,30 @@ public class MainActivity extends AppCompatActivity implements NewSessionFragmen
             //I NEED TO ADD A FAILSAFE TO THIS.. WHAT HAPPENS IF THE # OR OPERATIONS IS >9?
             //WE WILL HAVE TO READ 2 DIGITS INSTEAD OF 1.. CHANGE IN PHP CODE
             if(response!=null) {
-                String lastDigit = response.substring(response.length() - 1);
-                int numOfOperations = Integer.valueOf(lastDigit);
-                operationArray = new String[numOfOperations];
-                operationArray = response.split("/");
-                Log.i("Main Activity", "Response is not null");
+
+                //String secondToLastDigit = response.substring(response.length()-2);
+
+                fullResponseArray = new String[2];
+                fullResponseArray = response.split("-");
+
+                //extracting the operations
+                String lastDigit = fullResponseArray[0].substring(fullResponseArray[0].length() - 1);
+                int lastDigitInt = Integer.parseInt(lastDigit);
+                operationArray = new String[lastDigitInt];
+                operationArray = fullResponseArray[0].split("/");
+
+                //extracting the associate names
+                String lastDigit2 =fullResponseArray[1].substring(fullResponseArray[1].length()-1);
+                int lastDigitInt2 = Integer.parseInt(lastDigit2);
+                associatesArray = new String[lastDigitInt2];
+                associatesArray = fullResponseArray[1].split("/");
+
+                status = "Server is active";
+
+                Log.i("Main Activity RESPONSE:", operationArray[1]+","+associatesArray[1]);
             }else{
                 Log.i("Main Activity", "Response is null");
+                status = "Server is not active";
             }
         }
     }

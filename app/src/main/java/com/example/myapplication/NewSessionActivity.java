@@ -48,6 +48,10 @@ public class NewSessionActivity extends AppCompatActivity implements PreferredMe
     String totalTimeString;
     String delayTimeString;
     String delayNotesString;
+    String paceText;
+    String utilizationText;
+    String methodsText;
+    String date, mentorName, associateName, associateID;
 
 
     float totalEarnedTime;
@@ -65,7 +69,11 @@ public class NewSessionActivity extends AppCompatActivity implements PreferredMe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_session);
-        //setting listener for fragment
+        //get string extras from mentorMenteeActivity
+        associateName =getIntent().getStringExtra("Associate Name");
+        mentorName=getIntent().getStringExtra("Mentor Name");
+        associateID=getIntent().getStringExtra("Associate ID");
+        date=getIntent().getStringExtra("Date");
 
 
         //read the name of the operation that was passed from the previous activity
@@ -90,12 +98,16 @@ public class NewSessionActivity extends AppCompatActivity implements PreferredMe
     }
 
     @Override
-    public void onSummaryPageTriggered(String[]sliderValues, String delayNotes) {
+    public void onSummaryPageTriggered(String[]sliderValues, String delayNotes, String pace, String utilization, String methods) {
         //this is the preferred methods interface method.. it will be called
         //when the "end session" button is clicked
         //initiate calculations to get the performance etc
         sliderValuesArrray=sliderValues;
         delayNotesString=delayNotes;
+        paceText = pace;
+        utilizationText=utilization;
+        methodsText = methods;
+
         totalTimeCalculator();
 
     }
@@ -214,7 +226,20 @@ public class NewSessionActivity extends AppCompatActivity implements PreferredMe
         intent.putExtra("preferred methods",prefMethodsArray);
         //pass the delay notes
         intent.putExtra("notes", delayNotesString);
-        Log.i("from activity:", delayNotesString);
+        //pass the operation name
+        intent.putExtra("operation name", operationName);
+        //pass the pace text
+        intent.putExtra("pace",paceText);
+        //pass the utilization text
+        intent.putExtra("utilization", utilizationText);
+        //pass the methods  text
+        intent.putExtra("methods", methodsText);
+        //pass the associate name, mentor name, date and associate ID
+        intent.putExtra("Associate Name",associateName);
+        intent.putExtra("Mentor Name", mentorName);
+        intent.putExtra("Associate ID", associateID);
+        intent.putExtra("Date", date);
+
         startActivity(intent);
 
 
