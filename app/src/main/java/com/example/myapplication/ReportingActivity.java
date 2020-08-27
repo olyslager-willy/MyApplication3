@@ -141,7 +141,8 @@ public class ReportingActivity extends AppCompatActivity {
         protected void onPreExecute() {
             //specify the domain name and php script
             //still need to make php file
-            read_info_url = "http://192.168.1.67:80/read_info3.php";
+            read_info_url = "http://10.32.32.68" +
+                    ":80//read_info3.php";
         }
 
         @Override

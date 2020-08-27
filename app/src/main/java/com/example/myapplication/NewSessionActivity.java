@@ -261,7 +261,8 @@ public class NewSessionActivity extends AppCompatActivity implements PreferredMe
         protected void onPreExecute() {
             //specify the domain name and php script
             //still need to make php file
-            read_info_url2 ="http://192.168.1.67:80/read_info2.php";
+            read_info_url2 ="http://10.32.32.68" +
+                    ":80//read_info2.php";
         }
 
         @Override

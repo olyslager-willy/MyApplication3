@@ -120,7 +120,8 @@ public class MainActivity extends AppCompatActivity implements NewSessionFragmen
         protected void onPreExecute() {
             //specify the domain name and php script
             //still need to make php file
-            read_info_url ="http://192.168.1.67:80/read_info.php";
+            read_info_url ="http://10.32.32.68" +
+                    ":80/read_info.php";
         }
 
         @Override
@@ -191,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements NewSessionFragmen
 
                 status = "Server is active";
 
-                Log.i("Main Activity RESPONSE:", operationArray[1]+","+associatesArray[1]);
+                //Log.i("Main Activity RESPONSE:", operationArray[1]+","+associatesArray[1]);
             }else{
                 Log.i("Main Activity", "Response is null");
                 status = "Server is not active";
